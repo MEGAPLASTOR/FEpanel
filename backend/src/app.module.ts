@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { FirebaseAdminModule } from './firebase/firebase-admin.module';
 import { AuthModule } from './auth/auth.module';
@@ -13,6 +14,7 @@ import { AgentModule } from './agent/agent.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule.forRoot([{
       ttl: 60000,
       limit: 100,
