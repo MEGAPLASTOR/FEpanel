@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Server, Plus, RefreshCw, Trash2, Cpu, HardDrive, ShieldCheck, Activity } from 'lucide-react';
+import { Server, Plus, RefreshCw, Trash2, Cpu, HardDrive, ShieldCheck, Activity, Sparkles } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 
 interface NodeItem {
@@ -50,18 +50,18 @@ export default function AdminNodesPage() {
       setNodes([
         {
           id: 'vps-win10-01',
-          name: 'VPS Node 1 (Windows 10 Pro)',
-          ip: '103.145.22.40',
+          name: 'VPS Windows 10 (ThoDepTrai)',
+          ip: 'thodeptrai.ddns.net',
           port: 4001,
-          secretKey: 'agent_secret_123',
-          os: 'Windows 10',
+          secretKey: 'agent_secret_key_123',
+          os: 'Windows 10 Pro',
           status: 'ONLINE',
-          maxSlots: 15,
+          maxSlots: 20,
           metrics: {
             cpuPercent: 18.5,
             memoryUsedMB: 6144,
             memoryTotalMB: 16384,
-            activeSlotsCount: 4,
+            activeSlotsCount: 2,
           },
         },
       ]);
@@ -132,17 +132,19 @@ export default function AdminNodesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">Quản lý VPS Nodes</h1>
-          <p className="text-gray-400">
+          <h1 className="text-3xl font-extrabold text-galaxy-text mb-1 tracking-wide flex items-center gap-2">
+            <Server className="w-8 h-8 text-galaxy-primary animate-pulse" /> Quản lý Máy chủ VPS Nodes
+          </h1>
+          <p className="text-galaxy-text-sub text-sm">
             Kết nối máy chủ VPS Windows 10 để tự động tạo và điều khiển các Slot Minecraft.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={fetchNodes} disabled={loading}>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={fetchNodes} disabled={loading} className="border-galaxy-border">
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Làm mới
           </Button>
-          <Button onClick={() => setIsAddModalOpen(true)} className="bg-minecraft-primary hover:bg-minecraft-accent">
+          <Button onClick={() => setIsAddModalOpen(true)} className="shadow-galaxy-glow">
             <Plus className="w-4 h-4 mr-2" />
             Thêm VPS Node
           </Button>
@@ -160,61 +162,64 @@ export default function AdminNodesPage() {
           );
 
           return (
-            <Card key={node.id} className="bg-gray-900 border-gray-800 relative overflow-hidden">
+            <Card key={node.id} className="bg-galaxy-card/95 border-galaxy-border relative overflow-hidden shadow-lg hover:border-galaxy-primary/50 transition-all duration-200">
               <div
-                className={`absolute top-0 left-0 right-0 h-1 ${
-                  isOnline ? 'bg-green-500' : 'bg-red-500'
+                className={`absolute top-0 left-0 right-0 h-1.5 ${
+                  isOnline ? 'bg-galaxy-success shadow-[0_0_10px_#00E6A8]' : 'bg-galaxy-error'
                 }`}
               />
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3 pt-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gray-800 text-minecraft-accent">
+                    <div className="p-3 rounded-2xl bg-galaxy-bg-sub border border-galaxy-border text-galaxy-primary shadow-sm">
                       <Server className="w-6 h-6" />
                     </div>
                     <div>
-                      <CardTitle className="text-xl text-white">{node.name}</CardTitle>
-                      <CardDescription className="text-gray-400 font-mono text-xs">
-                        {node.ip}:{node.port} • Hệ điều hành: {node.os || 'Windows 10'}
+                      <CardTitle className="text-xl text-galaxy-text font-bold">{node.name}</CardTitle>
+                      <CardDescription className="text-galaxy-text-sub font-mono text-xs mt-0.5">
+                        {node.ip}:{node.port} • HĐH: <strong className="text-galaxy-highlight">{node.os || 'Windows 10'}</strong>
                       </CardDescription>
                     </div>
                   </div>
                   <Badge variant={isOnline ? 'success' : 'destructive'}>
-                    {node.status}
+                    <span className="flex items-center gap-1">
+                      <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-galaxy-success animate-ping' : 'bg-current'}`} />
+                      {node.status}
+                    </span>
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-3 p-3 bg-gray-950/60 rounded-lg border border-gray-800/80">
+                <div className="grid grid-cols-3 gap-3 p-3 bg-galaxy-bg-sub/80 rounded-xl border border-galaxy-border">
                   <div className="space-y-1">
-                    <div className="flex items-center text-xs text-gray-400">
+                    <div className="flex items-center text-xs text-galaxy-text-sub">
                       <Cpu className="w-3.5 h-3.5 mr-1 text-blue-400" /> CPU
                     </div>
-                    <div className="text-sm font-bold text-white">
+                    <div className="text-sm font-bold text-galaxy-text">
                       {node.metrics?.cpuPercent ?? 0}%
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <div className="flex items-center text-xs text-gray-400">
-                      <HardDrive className="w-3.5 h-3.5 mr-1 text-emerald-400" /> RAM
+                    <div className="flex items-center text-xs text-galaxy-text-sub">
+                      <HardDrive className="w-3.5 h-3.5 mr-1 text-galaxy-accent" /> RAM
                     </div>
-                    <div className="text-sm font-bold text-white">
-                      {memUsedGB} / {memTotalGB} GB ({memPercent}%)
+                    <div className="text-sm font-bold text-galaxy-text">
+                      {memUsedGB}/{memTotalGB}GB ({memPercent}%)
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <div className="flex items-center text-xs text-gray-400">
-                      <Activity className="w-3.5 h-3.5 mr-1 text-purple-400" /> Slots Đang Chạy
+                    <div className="flex items-center text-xs text-galaxy-text-sub">
+                      <Activity className="w-3.5 h-3.5 mr-1 text-galaxy-secondary-hover" /> Slots
                     </div>
-                    <div className="text-sm font-bold text-white">
+                    <div className="text-sm font-bold text-galaxy-text">
                       {node.metrics?.activeSlotsCount ?? 0} / {node.maxSlots || 20}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-gray-800">
-                  <div className="text-xs text-gray-500 flex items-center">
-                    <ShieldCheck className="w-3.5 h-3.5 mr-1 text-gray-400" />
+                <div className="flex items-center justify-between pt-2 border-t border-galaxy-border">
+                  <div className="text-xs text-galaxy-text-sub flex items-center font-mono">
+                    <ShieldCheck className="w-3.5 h-3.5 mr-1 text-galaxy-primary" />
                     Key: ••••••••••••
                   </div>
                   <div className="flex items-center gap-2">
@@ -223,9 +228,10 @@ export default function AdminNodesPage() {
                       size="sm"
                       onClick={() => handlePing(node.id)}
                       disabled={pingingId === node.id}
+                      className="text-xs border-galaxy-border"
                     >
                       <RefreshCw
-                        className={`w-3.5 h-3.5 mr-1 ${
+                        className={`w-3.5 h-3.5 mr-1 text-galaxy-primary ${
                           pingingId === node.id ? 'animate-spin' : ''
                         }`}
                       />
@@ -235,6 +241,7 @@ export default function AdminNodesPage() {
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(node.id)}
+                      className="px-2"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
@@ -248,18 +255,18 @@ export default function AdminNodesPage() {
 
       {/* Modal Add Node */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Server className="w-5 h-5 text-minecraft-accent" /> Thêm VPS Node Mới (Windows 10)
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-galaxy-card border border-galaxy-border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h2 className="text-xl font-bold text-galaxy-text flex items-center gap-2">
+              <Server className="w-5 h-5 text-galaxy-primary" /> Thêm VPS Node Mới (Windows 10)
             </h2>
-            <p className="text-sm text-gray-400">
+            <p className="text-xs text-galaxy-text-sub">
               Nhập địa chỉ IP và mã bảo mật của Agent đang chạy trên máy chủ VPS Windows 10 của bạn.
             </p>
 
             <form onSubmit={handleAddNode} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-300">Tên Node nhận diện</label>
+                <label className="text-xs font-semibold text-galaxy-text-sub">Tên Node nhận diện</label>
                 <Input
                   placeholder="VD: VPS-Win10-01"
                   value={name}
@@ -270,16 +277,16 @@ export default function AdminNodesPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">Địa chỉ IP công khai của VPS</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">Địa chỉ IP VPS</label>
                   <Input
-                    placeholder="VD: 103.145.22.40"
+                    placeholder="VD: thodeptrai.ddns.net"
                     value={ip}
                     onChange={(e) => setIp(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">Port Agent</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">Port Agent</label>
                   <Input
                     placeholder="4001"
                     value={port}
@@ -290,7 +297,7 @@ export default function AdminNodesPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-300">Mã bí mật Agent (AGENT_SECRET_KEY)</label>
+                <label className="text-xs font-semibold text-galaxy-text-sub">Mã bí mật (AGENT_SECRET_KEY)</label>
                 <Input
                   type="password"
                   placeholder="Nhập mã bí mật cấu hình trên VPS"
@@ -302,7 +309,7 @@ export default function AdminNodesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">Hệ điều hành</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">Hệ điều hành</label>
                   <Input
                     value={os}
                     onChange={(e) => setOs(e.target.value)}
@@ -310,7 +317,7 @@ export default function AdminNodesPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">Số Slot tối đa chứa được</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">Số Slot tối đa chứa được</label>
                   <Input
                     type="number"
                     value={maxSlots}
@@ -320,7 +327,7 @@ export default function AdminNodesPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-800">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-galaxy-border">
                 <Button
                   type="button"
                   variant="outline"
@@ -331,7 +338,6 @@ export default function AdminNodesPage() {
                 <Button
                   type="submit"
                   loading={isSubmitting}
-                  className="bg-minecraft-primary hover:bg-minecraft-accent text-white"
                 >
                   Thêm & Kết nối ngay
                 </Button>

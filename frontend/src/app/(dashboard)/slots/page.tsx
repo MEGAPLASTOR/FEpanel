@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Server, Play, Square, RotateCw, Terminal, Eye, FolderTree, Cpu, HardDrive } from 'lucide-react';
+import { Plus, Server, Play, Square, RotateCw, Terminal, Eye, FolderTree, Cpu, HardDrive, Sparkles, Activity } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
@@ -26,7 +26,7 @@ interface SlotItem {
 export default function SlotsPage() {
   const { user } = useAuth();
   const [slots, setSlots] = useState<SlotItem[]>([]);
-  const [maxSlots, setMaxSlots] = useState<number>(3);
+  const [maxSlots, setMaxSlots] = useState<number>(5);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -44,12 +44,12 @@ export default function SlotsPage() {
     try {
       if (user?.uid) {
         const userRes = await apiClient.get<any>(`/users/${user.uid}`);
-        setMaxSlots(userRes.data?.maxSlots ?? 3);
+        setMaxSlots(userRes.data?.maxSlots ?? 5);
       }
       const slotsRes = await apiClient.get<SlotItem[]>('/slots');
       setSlots(slotsRes.data || []);
     } catch (e) {
-      // Mock data if backend is offline
+      // Mock preview slots
       setSlots([
         {
           id: 'slot_1',
@@ -145,22 +145,24 @@ export default function SlotsPage() {
       {/* Header & Quota */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">Quản lý Slot Minecraft</h1>
-          <p className="text-gray-400">
-            Mỗi Slot tương ứng với 1 tài khoản Minecraft được chạy cô lập 24/7 trên VPS.
+          <h1 className="text-3xl font-extrabold text-galaxy-text mb-1 tracking-wide flex items-center gap-2.5">
+            <Sparkles className="w-7 h-7 text-galaxy-primary animate-pulse" /> Danh sách Minecraft Slots
+          </h1>
+          <p className="text-galaxy-text-sub text-sm">
+            Mỗi Slot là một tài khoản Minecraft được chạy cô lập 24/7 trên máy chủ VPS.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 bg-gray-900 border border-gray-800 rounded-lg text-xs font-medium text-gray-300 flex items-center gap-2">
-            <Server className="w-4 h-4 text-minecraft-accent" />
+          <div className="px-4 py-2 bg-galaxy-card border border-galaxy-border rounded-xl text-xs font-medium text-galaxy-text-sub flex items-center gap-2.5 shadow-sm">
+            <Server className="w-4 h-4 text-galaxy-primary" />
             <span>
-              Hạn mức: <strong className="text-white">{slots.length}</strong> / {maxSlots} Slots
+              Hạn mức Admin cấp: <strong className="text-galaxy-highlight font-extrabold text-sm">{slots.length}</strong> / {maxSlots} Slots
             </span>
           </div>
           <Button
             onClick={() => setIsCreateOpen(true)}
             disabled={isQuotaFull}
-            className="bg-minecraft-primary hover:bg-minecraft-accent text-white"
+            className="shadow-galaxy-glow text-xs px-4"
           >
             <Plus className="w-4 h-4 mr-1.5" />
             {isQuotaFull ? 'Hết hạn mức Slot' : 'Tạo Slot Mới'}
@@ -176,22 +178,22 @@ export default function SlotsPage() {
           const isStopping = slot.status === 'stopping';
 
           return (
-            <Card key={slot.id} className="bg-gray-900 border-gray-800 flex flex-col justify-between overflow-hidden">
+            <Card key={slot.id} className="bg-galaxy-card/95 border-galaxy-border flex flex-col justify-between overflow-hidden relative shadow-lg hover:border-galaxy-primary/50 transition-all duration-200">
               <div
-                className={`h-1 w-full ${
+                className={`h-1.5 w-full ${
                   isRunning
-                    ? 'bg-green-500'
+                    ? 'bg-galaxy-success shadow-[0_0_10px_#00E6A8]'
                     : isStarting || isStopping
-                    ? 'bg-yellow-500 animate-pulse'
-                    : 'bg-red-500'
+                    ? 'bg-galaxy-warning animate-pulse'
+                    : 'bg-galaxy-error/70'
                 }`}
               />
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-lg text-white font-bold">{slot.name}</CardTitle>
-                    <CardDescription className="text-xs text-gray-400 font-mono mt-0.5">
-                      Acc: <span className="text-emerald-400 font-semibold">{slot.username}</span> • v{slot.version}
+                    <CardTitle className="text-lg text-galaxy-text font-bold tracking-tight">{slot.name}</CardTitle>
+                    <CardDescription className="text-xs text-galaxy-text-sub font-mono mt-1">
+                      Acc: <strong className="text-galaxy-accent font-bold">{slot.username}</strong> • v{slot.version}
                     </CardDescription>
                   </div>
                   <Badge
@@ -199,20 +201,23 @@ export default function SlotsPage() {
                       isRunning ? 'success' : isStarting || isStopping ? 'warning' : 'destructive'
                     }
                   >
-                    {slot.status.toUpperCase()}
+                    <span className="flex items-center gap-1">
+                      <span className={`w-1.5 h-1.5 rounded-full ${isRunning ? 'bg-galaxy-success animate-ping' : 'bg-current'}`} />
+                      {slot.status.toUpperCase()}
+                    </span>
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-2 text-xs bg-gray-950 p-2.5 rounded-lg border border-gray-800">
-                  <div className="flex items-center text-gray-400">
-                    <Cpu className="w-3.5 h-3.5 mr-1 text-blue-400" /> CPU: {slot.cpuPercent ?? 0}%
+                <div className="grid grid-cols-2 gap-2 text-xs bg-galaxy-bg-sub/80 p-3 rounded-xl border border-galaxy-border">
+                  <div className="flex items-center text-galaxy-text-sub">
+                    <Cpu className="w-3.5 h-3.5 mr-1.5 text-blue-400" /> CPU: <strong className="text-galaxy-text ml-1">{slot.cpuPercent ?? 0}%</strong>
                   </div>
-                  <div className="flex items-center text-gray-400">
-                    <HardDrive className="w-3.5 h-3.5 mr-1 text-emerald-400" /> RAM: {slot.allocatedRamMB || 2048} MB
+                  <div className="flex items-center text-galaxy-text-sub">
+                    <HardDrive className="w-3.5 h-3.5 mr-1.5 text-galaxy-accent" /> RAM: <strong className="text-galaxy-text ml-1">{slot.allocatedRamMB || 2048}MB</strong>
                   </div>
-                  <div className="col-span-2 text-gray-400 truncate">
-                    Server: <span className="text-white">{slot.serverIp || 'localhost'}:{slot.serverPort || 25565}</span>
+                  <div className="col-span-2 text-galaxy-text-sub truncate font-mono text-[11px] mt-1 pt-1 border-t border-galaxy-border/50">
+                    Server: <span className="text-galaxy-highlight font-semibold">{slot.serverIp || 'localhost'}:{slot.serverPort || 25565}</span>
                   </div>
                 </div>
 
@@ -226,16 +231,16 @@ export default function SlotsPage() {
                       disabled={isStopping}
                       className="flex-1"
                     >
-                      <Square className="w-3.5 h-3.5 mr-1" /> Tắt
+                      <Square className="w-3.5 h-3.5 mr-1.5" /> Dừng Game
                     </Button>
                   ) : (
                     <Button
                       size="sm"
                       onClick={() => handleStart(slot.id)}
                       disabled={isStarting}
-                      className="flex-1 bg-green-600 hover:bg-green-500 text-white"
+                      className="flex-1 bg-galaxy-success hover:bg-galaxy-success/90 text-galaxy-bg font-bold shadow-[0_0_15px_-3px_#00E6A8]"
                     >
-                      <Play className="w-3.5 h-3.5 mr-1" /> Bật
+                      <Play className="w-3.5 h-3.5 mr-1.5" /> Bắt đầu Treo
                     </Button>
                   )}
                   <Button
@@ -243,16 +248,17 @@ export default function SlotsPage() {
                     variant="outline"
                     onClick={() => handleRestart(slot.id)}
                     disabled={!isRunning || isStarting || isStopping}
+                    title="Khởi động lại"
                   >
                     <RotateCw className="w-3.5 h-3.5" />
                   </Button>
                 </div>
 
                 {/* Direct Views */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-800">
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-galaxy-border">
                   <Link href={`/slots/${slot.id}/game`}>
-                    <Button size="sm" variant="outline" className="w-full text-xs h-8 text-emerald-400 hover:text-emerald-300">
-                      <Eye className="w-3.5 h-3.5 mr-1" /> Xem Live
+                    <Button size="sm" variant="outline" className="w-full text-xs h-8 text-galaxy-accent hover:text-galaxy-accent hover:border-galaxy-accent/50">
+                      <Eye className="w-3.5 h-3.5 mr-1" /> Màn hình
                     </Button>
                   </Link>
                   <Link href={`/slots/${slot.id}/console`}>
@@ -274,18 +280,18 @@ export default function SlotsPage() {
 
       {/* Modal Create Slot */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Server className="w-5 h-5 text-minecraft-accent" /> Tạo Slot Treo Acc Minecraft Mới
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-galaxy-card border border-galaxy-border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h2 className="text-xl font-bold text-galaxy-text flex items-center gap-2">
+              <Server className="w-5 h-5 text-galaxy-primary" /> Khởi tạo Slot Treo Acc Minecraft
             </h2>
-            <p className="text-sm text-gray-400">
-              Cấu hình tài khoản và server đích. Hệ thống sẽ tự động khởi tạo trên VPS của bạn.
+            <p className="text-xs text-galaxy-text-sub">
+              Hệ thống sẽ tạo 1 môi trường game cô lập trên VPS và tự động kết nối vào server.
             </p>
 
             <form onSubmit={handleCreateSlot} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-300">Tên Slot</label>
+                <label className="text-xs font-semibold text-galaxy-text-sub">Tên Slot nhận diện</label>
                 <Input
                   placeholder="VD: Treo Server Hypixel"
                   value={name}
@@ -296,7 +302,7 @@ export default function SlotsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">Phiên bản Minecraft</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">Phiên bản Minecraft</label>
                   <Input
                     value={version}
                     onChange={(e) => setVersion(e.target.value)}
@@ -305,9 +311,9 @@ export default function SlotsPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">Tên Nhân vật (Acc MC)</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">Tên Nhân vật (Acc MC)</label>
                   <Input
-                    placeholder="VD: PlayerOne"
+                    placeholder="VD: ThoDepTrai_AFK"
                     value={mcUsername}
                     onChange={(e) => setMcUsername(e.target.value)}
                     required
@@ -317,7 +323,7 @@ export default function SlotsPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">IP Server Game đích</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">IP Server Game đích</label>
                   <Input
                     value={serverIp}
                     onChange={(e) => setServerIp(e.target.value)}
@@ -325,7 +331,7 @@ export default function SlotsPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-300">Port</label>
+                  <label className="text-xs font-semibold text-galaxy-text-sub">Port</label>
                   <Input
                     value={serverPort}
                     onChange={(e) => setServerPort(e.target.value)}
@@ -340,23 +346,19 @@ export default function SlotsPage() {
                   id="autoReconnect"
                   checked={autoReconnect}
                   onChange={(e) => setAutoReconnect(e.target.checked)}
-                  className="rounded bg-gray-950 border-gray-800 text-minecraft-primary focus:ring-0"
+                  className="rounded bg-galaxy-bg border-galaxy-border text-galaxy-primary focus:ring-0"
                 />
-                <label htmlFor="autoReconnect" className="text-xs text-gray-300 cursor-pointer">
+                <label htmlFor="autoReconnect" className="text-xs text-galaxy-text cursor-pointer">
                   Tự động kết nối lại khi bị kick / server bảo trì (Auto-Reconnect)
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-800">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-galaxy-border">
                 <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
                   Hủy
                 </Button>
-                <Button
-                  type="submit"
-                  loading={isSubmitting}
-                  className="bg-minecraft-primary hover:bg-minecraft-accent text-white"
-                >
-                  Khởi tạo Slot
+                <Button type="submit" loading={isSubmitting}>
+                  Khởi tạo Slot ngay
                 </Button>
               </div>
             </form>

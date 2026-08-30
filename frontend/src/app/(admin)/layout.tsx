@@ -3,16 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { Sidebar, SidebarItem } from '@/components/ui/sidebar';
-import { Shield, Server, Users, Settings } from 'lucide-react';
+import { Sidebar } from '@/components/ui/sidebar';
 import { Loading } from '@/components/ui/loading';
-
-const ADMIN_MENU: SidebarItem[] = [
-  { icon: Shield, label: 'Admin Dashboard', href: '/admin' },
-  { icon: Server, label: 'All Nodes', href: '/admin/nodes' },
-  { icon: Users, label: 'Users', href: '/admin/users' },
-  { icon: Settings, label: 'Settings', href: '/admin/settings' },
-];
 
 export default function AdminLayout({
   children,
@@ -30,8 +22,8 @@ export default function AdminLayout({
 
   if (!initialized) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen bg-gray-950">
-        <Loading text="Loading admin..." />
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-galaxy-bg">
+        <Loading text="Đang tải dữ liệu Quản trị viên..." />
       </div>
     );
   }
@@ -41,8 +33,8 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
-      <Sidebar items={ADMIN_MENU} role="ADMIN" />
+    <div className="flex min-h-screen bg-galaxy-bg text-galaxy-text galaxy-bg-glow">
+      <Sidebar role="ADMIN" />
       <main className="flex-1 md:pl-64 overflow-x-hidden pt-16 md:pt-0">
         <div className="p-6 max-w-7xl mx-auto min-h-[calc(100vh-4rem)]">
           {children}
