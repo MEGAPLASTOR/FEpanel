@@ -89,6 +89,27 @@ export class NodesService implements OnModuleInit {
     return { success: true };
   }
 
+  async handleHeartbeat(body: any) {
+    const { nodeId, metrics } = body;
+    const targetId = nodeId || 'vps-win10-01';
+
+    const dataToUpdate = {
+      status: 'ONLINE',
+      metrics: {
+        status: 'ONLINE',
+        cpuPercent: metrics?.cpuPercent ?? 15,
+        memoryUsedMB: metrics?.memoryUsedMB ?? 8192,
+        memoryTotalMB: metrics?.memoryTotalMB ?? 32768,
+        activeSlotsCount: metrics?.activeSlotsCount ?? 0,
+        lastPing: new Date().toISOString(),
+      },
+      lastPingAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await this.nodesCollection.doc(targetId).set(dataToUpdate, { merge: true });
+    return { success: true, metrics: dataToUpdate.metrics };
+  }
+
   async pingNode(id: string): Promise<NodeMetrics> {
     const node = (await this.findOne(id)) as any;
     const url = `http://${node.ip}:${node.port}/metrics`;

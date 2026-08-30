@@ -50,6 +50,11 @@ export class NodesController {
     return this.nodesService.remove(id);
   }
 
+  @Post('heartbeat')
+  handleHeartbeat(@Body() body: any) {
+    return this.nodesService.handleHeartbeat(body);
+  }
+
   @Post(':id/ping')
   @Roles('ADMIN')
   ping(@Param('id') id: string) {
