@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { FIREBASE_ADMIN } from '../firebase/firebase-admin.module';
 import { CreateNodeDto } from './dto/create-node.dto';
@@ -14,13 +14,32 @@ export interface NodeMetrics {
 }
 
 @Injectable()
-export class NodesService {
+export class NodesService implements OnModuleInit {
   constructor(
     @Inject(FIREBASE_ADMIN) private readonly firebaseAdmin: admin.app.App,
   ) {}
 
   private get nodesCollection() {
     return this.firebaseAdmin.firestore().collection('nodes');
+  }
+
+  async onModuleInit() {
+    try {
+      const snapshot = await this.nodesCollection.limit(1).get();
+      if (snapshot.empty) {
+        await this.create({
+          name: 'VPS Windows 10 (ThoDepTrai)',
+          ip: 'thodeptrai.ddns.net',
+          port: 4001,
+          secretKey: 'agent_secret_key_123',
+          os: 'Windows 10',
+          maxSlots: 20,
+        });
+        console.log('✅ Auto-configured default VPS Node: thodeptrai.ddns.net:4001');
+      }
+    } catch (e) {
+      console.warn('Auto-seed node warning:', e);
+    }
   }
 
   async findAll() {

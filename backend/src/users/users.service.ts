@@ -32,7 +32,7 @@ export class UsersService {
       displayName: data.displayName,
       role: data.role,
       status: 'active',
-      maxSlots: 1,
+      maxSlots: 5,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 

@@ -9,6 +9,7 @@ out/
 dist/
 build/
 *.tsbuildinfo
+!agent/dist/
 
 # Environment Variables & Secrets
 .env
