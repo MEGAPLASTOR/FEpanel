@@ -18,21 +18,25 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, initialized } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (initialized && !user) {
       router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, initialized, router]);
 
-  if (loading || !user) {
+  if (!initialized) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
-        <Loading text="Loading..." />
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-gray-950">
+        <Loading text="Loading dashboard..." />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

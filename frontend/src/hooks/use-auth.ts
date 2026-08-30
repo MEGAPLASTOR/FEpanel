@@ -6,6 +6,7 @@ import { authService } from '@/services/auth.service';
 interface AuthState {
   user: User | null;
   loading: boolean;
+  initialized: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
@@ -17,6 +18,7 @@ interface AuthState {
 export const useAuth = create<AuthState>((set) => ({
   user: null,
   loading: false,
+  initialized: false,
   error: null,
 
   login: async (email, password) => {
@@ -63,19 +65,19 @@ export const useAuth = create<AuthState>((set) => ({
   init: () => {
     // Timeout fallback nếu Firebase mất kết nối mạng
     const timer = setTimeout(() => {
-      set((state) => (state.loading ? { loading: false } : {}));
-    }, 2500);
+      set((state) => ({ initialized: true, loading: false }));
+    }, 2000);
 
     const unsubscribe = onAuthStateChanged(
       auth,
       (user) => {
         clearTimeout(timer);
-        set({ user, loading: false });
+        set({ user, loading: false, initialized: true });
       },
       (err) => {
         clearTimeout(timer);
         console.error('Firebase Auth Init Error:', err);
-        set({ user: null, loading: false, error: err.message });
+        set({ user: null, loading: false, initialized: true, error: err.message });
       }
     );
     return () => {

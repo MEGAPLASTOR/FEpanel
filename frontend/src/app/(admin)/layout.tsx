@@ -19,23 +19,25 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, initialized } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (initialized && !user) {
       router.push('/login');
     }
-    // In a real app, you would check user role here
-    // if (user && user.role !== 'ADMIN') router.push('/dashboard');
-  }, [user, loading, router]);
+  }, [user, initialized, router]);
 
-  if (loading || !user) {
+  if (!initialized) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
-        <Loading text="Loading..." />
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-gray-950">
+        <Loading text="Loading admin..." />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
