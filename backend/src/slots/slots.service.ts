@@ -30,6 +30,16 @@ export class SlotsService {
   }
 
   async createSlot(data: CreateSlotDto) {
+    // 1. Kiểm tra hạn mức slot của User
+    const userDoc = await this.firebaseAdmin.firestore().collection('users').doc(data.ownerId).get();
+    const userData = userDoc.data() || {};
+    const maxSlots = userData.maxSlots ?? 1;
+
+    const existingSlots = await this.slotsCollection.where('ownerId', '==', data.ownerId).get();
+    if (existingSlots.size >= maxSlots) {
+      throw new ForbiddenException(`Bạn đã sử dụng hết hạn mức Slot (${existingSlots.size}/${maxSlots} Slots). Vui lòng liên hệ Admin để được cấp thêm Slot!`);
+    }
+
     const docRef = this.slotsCollection.doc();
     const slotData = {
       ...data,

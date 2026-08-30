@@ -11,6 +11,7 @@ import { StreamingModule } from './streaming/streaming.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { DiscordModule } from './discord/discord.module';
 import { AgentModule } from './agent/agent.module';
+import { NodesModule } from './nodes/nodes.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AgentModule } from './agent/agent.module';
     FirebaseAdminModule.forRoot(),
     AuthModule,
     UsersModule,
+    NodesModule,
     SlotsModule,
     FilesModule,
     ConsoleModule,
