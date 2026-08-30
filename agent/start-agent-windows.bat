@@ -27,6 +27,6 @@ echo.
 set AGENT_PORT=4001
 set AGENT_SECRET_KEY=agent_secret_key_123
 
-call npm run start:dev
+call npx ts-node src/main.ts
 
 pause
