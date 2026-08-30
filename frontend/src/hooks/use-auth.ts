@@ -16,7 +16,7 @@ interface AuthState {
 
 export const useAuth = create<AuthState>((set) => ({
   user: null,
-  loading: true,
+  loading: false,
   error: null,
 
   login: async (email, password) => {
