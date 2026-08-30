@@ -1,0 +1,21 @@
+{
+  "name": "minecraft-cloud-panel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minecraft Cloud Hosting Panel - Cloud gaming + hosting platform",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "agent"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run start:dev --workspace=backend",
+    "dev:agent": "npm run start:dev --workspace=agent",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "build:agent": "npm run build --workspace=agent",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces"
+  }
+}
