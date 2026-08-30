@@ -17,6 +17,7 @@ export function LoginForm() {
     if (!email || !password) return;
     try {
       await login(email, password);
+      window.location.href = '/dashboard';
     } catch (err) {
       // Error is handled in store
     }

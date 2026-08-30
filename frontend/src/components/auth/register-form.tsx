@@ -18,6 +18,7 @@ export function RegisterForm() {
     if (!email || !password || !displayName) return;
     try {
       await register(email, password, displayName);
+      window.location.href = '/dashboard';
     } catch (err) {
       // Error handled in store
     }
