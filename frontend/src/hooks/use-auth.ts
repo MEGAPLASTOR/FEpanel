@@ -61,9 +61,26 @@ export const useAuth = create<AuthState>((set) => ({
   },
 
   init: () => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      set({ user, loading: false });
-    });
-    return unsubscribe;
+    // Timeout fallback nếu Firebase mất kết nối mạng
+    const timer = setTimeout(() => {
+      set((state) => (state.loading ? { loading: false } : {}));
+    }, 2500);
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        clearTimeout(timer);
+        set({ user, loading: false });
+      },
+      (err) => {
+        clearTimeout(timer);
+        console.error('Firebase Auth Init Error:', err);
+        set({ user: null, loading: false, error: err.message });
+      }
+    );
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   },
 }));
