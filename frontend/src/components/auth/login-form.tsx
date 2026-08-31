@@ -5,20 +5,19 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Shield, Lock, User as UserIcon } from 'lucide-react';
+import { Sparkles, Lock, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 
 export function LoginForm() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const { login, register, error, loading } = useAuth();
+  const { login, error, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) return;
 
     const cleanInput = identifier.trim();
-    // Convert username to standard email format if no @ symbol
     const emailToUse = cleanInput.includes('@') ? cleanInput : `${cleanInput.toLowerCase()}@minecraft.panel`;
     const isAdminAccount = cleanInput.toUpperCase() === 'MEGAPLASTOR';
 
@@ -26,16 +25,7 @@ export function LoginForm() {
       await login(emailToUse, password);
       window.location.href = isAdminAccount ? '/admin' : '/slots';
     } catch (err: any) {
-      // If Admin MEGAPLASTOR hasn't been created yet in Firebase Auth, auto-create it now!
-      if (isAdminAccount && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential')) {
-        try {
-          await register(emailToUse, password, 'MEGAPLASTOR');
-          window.location.href = '/admin';
-          return;
-        } catch (regErr) {
-          // Handled in store
-        }
-      }
+      // Error message is automatically converted to friendly Vietnamese in useAuth
     }
   };
 
