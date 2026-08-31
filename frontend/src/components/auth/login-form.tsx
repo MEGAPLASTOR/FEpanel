@@ -11,28 +11,29 @@ import Link from 'next/link';
 export function LoginForm() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const { login, error, loading } = useAuth();
+  const { login, register, error, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) return;
 
-    // Support both username (e.g. MEGAPLASTOR) and full email
-    const emailToUse = identifier.includes('@') ? identifier : `${identifier.toLowerCase()}@minecraft.panel`;
+    const cleanInput = identifier.trim();
+    // Convert username to standard email format if no @ symbol
+    const emailToUse = cleanInput.includes('@') ? cleanInput : `${cleanInput.toLowerCase()}@minecraft.panel`;
+    const isAdminAccount = cleanInput.toUpperCase() === 'MEGAPLASTOR';
 
     try {
       await login(emailToUse, password);
-      window.location.href = '/dashboard';
+      window.location.href = isAdminAccount ? '/admin' : '/slots';
     } catch (err: any) {
-      // If user MEGAPLASTOR doesn't exist yet on Firebase, try creating it automatically!
-      if (identifier.toUpperCase() === 'MEGAPLASTOR' && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential')) {
+      // If Admin MEGAPLASTOR hasn't been created yet in Firebase Auth, auto-create it now!
+      if (isAdminAccount && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential')) {
         try {
-          const register = useAuth.getState().register;
           await register(emailToUse, password, 'MEGAPLASTOR');
           window.location.href = '/admin';
           return;
         } catch (regErr) {
-          // Handled
+          // Handled in store
         }
       }
     }
@@ -66,7 +67,7 @@ export function LoginForm() {
                 <UserIcon className="w-3.5 h-3.5 text-galaxy-primary" /> Tên tài khoản hoặc Email
               </label>
               <Input
-                placeholder="VD: MEGAPLASTOR hoặc email..."
+                placeholder="VD: MEGAPLASTOR hoặc email của bạn..."
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
@@ -95,7 +96,7 @@ export function LoginForm() {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 pt-2">
-            <Button type="submit" className="w-full py-2.5" loading={loading}>
+            <Button type="submit" className="w-full py-2.5 shadow-galaxy-glow" loading={loading}>
               Đăng nhập hệ thống
             </Button>
             <div className="text-xs text-center text-galaxy-text-sub">

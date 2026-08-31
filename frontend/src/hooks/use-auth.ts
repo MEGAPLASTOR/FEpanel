@@ -3,6 +3,31 @@ import { User, onAuthStateChanged, Unsubscribe } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { authService } from '@/services/auth.service';
 
+export const getFriendlyErrorMessage = (error: any): string => {
+  const code = error?.code || '';
+  const message = error?.message || '';
+
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) {
+    return 'Tên tài khoản hoặc mật khẩu không chính xác.';
+  }
+  if (code.includes('email-already-in-use')) {
+    return 'Tài khoản hoặc Email này đã tồn tại. Vui lòng bấm Đăng nhập.';
+  }
+  if (code.includes('invalid-email')) {
+    return 'Định dạng tài khoản/email không hợp lệ.';
+  }
+  if (code.includes('weak-password')) {
+    return 'Mật khẩu quá ngắn, vui lòng nhập tối thiểu 6 ký tự.';
+  }
+  if (code.includes('network-request-failed')) {
+    return 'Lỗi kết nối mạng, vui lòng kiểm tra internet và thử lại.';
+  }
+  if (code.includes('too-many-requests')) {
+    return 'Đã thử quá nhiều lần. Vui lòng đợi 1-2 phút rồi thử lại.';
+  }
+  return message.replace('Firebase: Error ', '').replace(/\(auth\/.*\)\.?/, '').trim() || 'Đã có lỗi xảy ra khi xác thực.';
+};
+
 interface AuthState {
   user: User | null;
   loading: boolean;
@@ -26,7 +51,8 @@ export const useAuth = create<AuthState>((set) => ({
     try {
       await authService.loginWithEmail(email, password);
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      const friendlyMsg = getFriendlyErrorMessage(err);
+      set({ error: friendlyMsg, loading: false });
       throw err;
     }
   },
@@ -36,7 +62,8 @@ export const useAuth = create<AuthState>((set) => ({
     try {
       await authService.registerWithEmail(email, password, displayName);
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      const friendlyMsg = getFriendlyErrorMessage(err);
+      set({ error: friendlyMsg, loading: false });
       throw err;
     }
   },
@@ -47,7 +74,7 @@ export const useAuth = create<AuthState>((set) => ({
       await authService.logoutUser();
       set({ user: null, loading: false });
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      set({ error: getFriendlyErrorMessage(err), loading: false });
     }
   },
 
@@ -57,13 +84,12 @@ export const useAuth = create<AuthState>((set) => ({
       await authService.resetPassword(email);
       set({ loading: false });
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      set({ error: getFriendlyErrorMessage(err), loading: false });
       throw err;
     }
   },
 
   init: () => {
-    // Timeout fallback nếu Firebase mất kết nối mạng
     const timer = setTimeout(() => {
       set((state) => ({ initialized: true, loading: false }));
     }, 2000);
@@ -77,7 +103,7 @@ export const useAuth = create<AuthState>((set) => ({
       (err) => {
         clearTimeout(timer);
         console.error('Firebase Auth Init Error:', err);
-        set({ user: null, loading: false, initialized: true, error: err.message });
+        set({ user: null, loading: false, initialized: true, error: getFriendlyErrorMessage(err) });
       }
     );
     return () => {
